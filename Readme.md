@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Александр Рожихин](https://up.htmlacademy.ru/yii/2/user/1025823).
-* Наставник: `Неизвестно`.
+* Наставник: [Олег Мифле](https://htmlacademy.ru/profile/id496565)
 
 ---
 
