@@ -6,23 +6,34 @@ namespace HtmlAcademy;
 
 class Tack
 {
-    // Статусы
+    /**
+     * Статусы
+     */
     private const STATUS_NEW = 'new'; // новое задание
     private const STATUS_CANCELLED = 'cancelled'; // задание отменено
     private const STATUS_WORKING = 'working'; // задание в работе
     private const STATUS_COMPLETED = 'completed'; // задание завершено
     private const STATUS_FAILED = 'failed '; // задание провалено
 
-    // Действия
+    /**
+     * Действия
+     */
     private const ACTION_CANCEL = 'cancell'; // отменить задание
     private const ACTION_RESPOND = 'respond'; // откликнуться на задание
     private const ACTION_COMPLETE = 'complete'; // отметить как выполненное
     private const ACTION_REFUSE = 'refuse'; // отказаться от задания
 
-    // Роли
+    /**
+     * Роли
+     */
     private const ROLE_EXECUTOR = 'executor';
     private const ROLE_CUSTOMER= 'customer';
 
+    /**
+     * Карта статусов
+     *
+     * @var string[]
+     */
     private $statuses_map = [
         self::STATUS_NEW => 'Новое',
         self::STATUS_CANCELLED => 'Отменено',
@@ -31,6 +42,11 @@ class Tack
         self::STATUS_FAILED=> 'Провалено',
             ];
 
+    /**
+     * Карта действий
+     *
+     * @var string[]
+     */
     private $actions_map = [
         self::ACTION_CANCEL => 'Отменить',
         self::ACTION_RESPOND => 'Откликнуться',
@@ -38,12 +54,41 @@ class Tack
         self::ACTION_REFUSE => 'Отказаться'
     ];
 
+    /**
+     * Текущая роль
+     *
+     * @var string
+     */
     private $current_status = self::STATUS_NEW;
+
+    /**
+     * ID исполнителя
+     *
+     * @var mixed|null
+     */
     private $executor_id = null;
+
+    /**
+     * ID заказчика
+     *
+     * @var mixed|null
+     */
     private $customer_id = null;
 
+    /**
+     * Роль по-умолчанию
+     *
+     * @var string
+     *
+     * default -> 'customer';
+     */
     private $role = self::ROLE_CUSTOMER;
 
+    /**
+     * Tack constructor.
+     * @param $customer_id
+     * @param null $executor_id
+     */
     public function __construct($customer_id, $executor_id = null)
     {
         $this->customer_id = $customer_id;
@@ -51,6 +96,9 @@ class Tack
         $this->setRole();
     }
 
+    /**
+     * Ф-я берет роль пользователя из сессии, проверяет, что она является допустимой и устанавливает ее текущей
+     */
     private function setRole()
     {
         if (isset( $_SESSION['user']['role']) && in_array( $_SESSION['user']['role'], $this->getRoles() )){
@@ -58,11 +106,22 @@ class Tack
         }
     }
 
+    /**
+     * Ф-я возвращает массив доустимых ролей
+     *
+     * @return string[]
+     */
     private function getRoles()
     {
         return [self::ROLE_EXECUTOR, self::ROLE_CUSTOMER];
     }
 
+    /**
+     * Ф-я возвращает допустимых дейтвий в зависимости от переданного статуса
+     *
+     * @param $status
+     * @return array|string[]
+     */
     public function getAvailableActions($status)
     {
         switch ($status) {
@@ -81,6 +140,12 @@ class Tack
         }
     }
 
+    /**
+     * Ф-я возвращает допустимое действие в зависимости от роли зарегистрированного пользователя
+     *
+     * @param $current_status
+     * @return mixed|string
+     */
     public function getNextStatus($current_status)
     {
         $available_actions = $this->getAvailableActions($current_status);
