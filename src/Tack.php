@@ -9,32 +9,32 @@ class Tack
     /**
      * Статусы
      */
-    private const STATUS_NEW = 'new'; // новое задание
-    private const STATUS_CANCELLED = 'cancelled'; // задание отменено
-    private const STATUS_WORKING = 'working'; // задание в работе
-    private const STATUS_COMPLETED = 'completed'; // задание завершено
-    private const STATUS_FAILED = 'failed '; // задание провалено
+    const STATUS_NEW = 'new'; // новое задание
+    const STATUS_CANCELLED = 'cancelled'; // задание отменено
+    const STATUS_WORKING = 'working'; // задание в работе
+    const STATUS_COMPLETED = 'completed'; // задание завершено
+    const STATUS_FAILED = 'failed '; // задание провалено
 
     /**
      * Действия
      */
-    private const ACTION_CANCEL = 'cancell'; // отменить задание
-    private const ACTION_RESPOND = 'respond'; // откликнуться на задание
-    private const ACTION_COMPLETE = 'complete'; // отметить как выполненное
-    private const ACTION_REFUSE = 'refuse'; // отказаться от задания
+    const ACTION_CANCEL = 'cancell'; // отменить задание
+    const ACTION_RESPOND = 'respond'; // откликнуться на задание
+    const ACTION_COMPLETE = 'complete'; // отметить как выполненное
+    const ACTION_REFUSE = 'refuse'; // отказаться от задания
 
     /**
      * Роли
      */
-    private const ROLE_EXECUTOR = 'executor';
-    private const ROLE_CUSTOMER= 'customer';
+    const ROLE_EXECUTOR = 'executor';
+    const ROLE_CUSTOMER= 'customer';
 
     /**
      * Карта статусов
      *
      * @var string[]
      */
-    private $statuses_map = [
+    private $statusesMap = [
         self::STATUS_NEW => 'Новое',
         self::STATUS_CANCELLED => 'Отменено',
         self::STATUS_WORKING => 'Выполняется',
@@ -47,7 +47,7 @@ class Tack
      *
      * @var string[]
      */
-    private $actions_map = [
+    private $actionsMap = [
         self::ACTION_CANCEL => 'Отменить',
         self::ACTION_RESPOND => 'Откликнуться',
         self::ACTION_COMPLETE => 'Завершить',
@@ -59,61 +59,50 @@ class Tack
      *
      * @var string
      */
-    private $current_status = self::STATUS_NEW;
+    private $currentStatus = self::STATUS_NEW;
 
     /**
      * ID исполнителя
      *
      * @var mixed|null
      */
-    private $executor_id = null;
+    private $executorId = null;
 
     /**
      * ID заказчика
      *
      * @var mixed|null
      */
-    private $customer_id = null;
-
-    /**
-     * Роль по-умолчанию
-     *
-     * @var string
-     *
-     * default -> 'customer';
-     */
-    private $role = self::ROLE_CUSTOMER;
-
+    private $customerId = null;
     /**
      * Tack constructor.
      * @param $customer_id
      * @param null $executor_id
      */
-    public function __construct($customer_id, $executor_id = null)
+    public function __construct($customerId, $executorId = null)
     {
-        $this->customer_id = $customer_id;
-        $this->executor_id = $executor_id;
-        $this->setRole();
+        $this->customerId = $customerId;
+        $this->executorId = $executorId;
     }
 
     /**
-     * Ф-я берет роль пользователя из сессии, проверяет, что она является допустимой и устанавливает ее текущей
-     */
-    private function setRole()
-    {
-        if (isset( $_SESSION['user']['role']) && in_array( $_SESSION['user']['role'], $this->getRoles() )){
-            $this->role = $_SESSION['user']['role'];
-        }
-    }
-
-    /**
-     * Ф-я возвращает массив доустимых ролей
+     * Ф-я возвращает карту статусов
      *
-     * @return string[]
+     * @return array|string[]
      */
-    private function getRoles()
+    public function getStatusesMap()
     {
-        return [self::ROLE_EXECUTOR, self::ROLE_CUSTOMER];
+        return $this->statusesMap;
+    }
+
+    /**
+     * Ф-я возвращает карту действий
+     *
+     * @return array|string[]
+     */
+    public function getActionsMap()
+    {
+        return $this->actionsMap;
     }
 
     /**
@@ -122,8 +111,9 @@ class Tack
      * @param $status
      * @return array|string[]
      */
-    public function getAvailableActions($status)
+    public function getAvailableActions($status): array
     {
+        $this->currentStatus = $status;
         switch ($status) {
             case self::STATUS_NEW :
                 return [
@@ -141,24 +131,25 @@ class Tack
     }
 
     /**
-     * Ф-я возвращает допустимое действие в зависимости от роли зарегистрированного пользователя
+     * Ф-я возвращает следующий статус в зависимости от действия
      *
      * @param $current_status
      * @return mixed|string
      */
-    public function getNextStatus($current_status)
+    public function getNextStatus($action): string
     {
-        $available_actions = $this->getAvailableActions($current_status);
-        if (!$available_actions){
-            die('Нет доступных действий');
-        }
-        switch ($this->role){
-            case self::ROLE_CUSTOMER:
-                return $available_actions[self::ROLE_CUSTOMER];
-            case self::ROLE_EXECUTOR:
-                return $available_actions[self::ROLE_EXECUTOR];
+        switch ($action) {
+            case self::ACTION_RESPOND :
+                return  self::STATUS_WORKING;
+            case self::ACTION_CANCEL :
+                return self::STATUS_CANCELLED;
+            case self::ACTION_COMPLETE:
+                return self::STATUS_COMPLETED;
+            case self::ACTION_REFUSE:
+                return self::STATUS_FAILED;
             default:
-                return 'Статус недоступен';
+                throw new \Exception('Статус недоступен');
         }
     }
+
 }
