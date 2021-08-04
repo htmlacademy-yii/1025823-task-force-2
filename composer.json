@@ -1,0 +1,17 @@
+{
+    "name": "htmlacademy/taskforce",
+    "description": "Task Force",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Rozhikhin Alexander",
+            "email": "rozhihin@gmail.com"
+        }
+    ],
+    "require": {},
+  "autoload": {
+    "psr-4": {
+      "HtmlAcademy\\": "src/"
+    }
+  }
+}
