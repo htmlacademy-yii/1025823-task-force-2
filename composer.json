@@ -8,6 +8,7 @@
             "email": "rozhihin@gmail.com"
         }
     ],
+
   "require": {},
   "autoload": {
     "psr-4": {
